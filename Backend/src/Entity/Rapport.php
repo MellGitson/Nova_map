@@ -39,7 +39,7 @@ class Rapport
     #[ORM\Column(type: 'json')]
     private array $donneesSnapshot = [];
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeInterface $dateCreation;
 
     public function __construct()

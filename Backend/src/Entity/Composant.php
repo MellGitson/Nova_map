@@ -59,7 +59,7 @@ class Composant
     #[ORM\Column(type: 'decimal', precision: 5, scale: 2, nullable: true)]
     private ?float $score = null;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeInterface $derniereAnalyse = null;
 
     #[ORM\Column(type: 'float')]
@@ -68,7 +68,7 @@ class Composant
     #[ORM\Column(type: 'float')]
     private float $positionY = 0.0;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeInterface $dateCreation;
 
     #[ORM\OneToMany(mappedBy: 'source', targetEntity: LienComposant::class, cascade: ['remove'])]

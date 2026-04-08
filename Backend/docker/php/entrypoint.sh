@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+# Installation des dépendances Composer
+composer install --no-interaction --optimize-autoloader
+
 # Génère les clés JWT si elles n'existent pas encore
 if [ ! -f config/jwt/private.pem ]; then
     mkdir -p config/jwt

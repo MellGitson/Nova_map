@@ -54,7 +54,7 @@ class JournalAudit
     #[ORM\Column(type: 'json', nullable: true)]
     private ?array $donnees = null;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeInterface $dateCreation;
 
     public function __construct()

@@ -44,10 +44,10 @@ class Analyse
     #[ORM\Column(type: 'decimal', precision: 5, scale: 2, nullable: true)]
     private ?float $scoreApres = null;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeInterface $dateDebut;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeInterface $dateFin = null;
 
     #[ORM\OneToMany(mappedBy: 'analyse', targetEntity: ResultatApi::class, cascade: ['remove'])]

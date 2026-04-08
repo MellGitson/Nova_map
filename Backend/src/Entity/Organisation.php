@@ -35,7 +35,7 @@ class Organisation
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private User $proprietaire;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeInterface $dateCreation;
 
     #[ORM\OneToMany(mappedBy: 'organisation', targetEntity: Membre::class, cascade: ['remove'])]

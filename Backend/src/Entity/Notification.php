@@ -33,10 +33,10 @@ class Notification
     #[ORM\Column(type: 'string', length: 20, columnDefinition: "ENUM('non_lue','lue','resolue') NOT NULL DEFAULT 'non_lue'")]
     private string $statut = self::STATUT_NON_LUE;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeInterface $lueLe = null;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeInterface $dateCreation;
 
     public function __construct()

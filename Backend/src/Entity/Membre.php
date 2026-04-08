@@ -33,7 +33,7 @@ class Membre
     #[ORM\Column(type: 'string', length: 20, columnDefinition: "ENUM('user','manager','admin') NOT NULL DEFAULT 'user'")]
     private string $role = self::ROLE_USER;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeInterface $dateAjout;
 
     public function __construct()

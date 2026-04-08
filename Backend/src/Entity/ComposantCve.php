@@ -33,10 +33,10 @@ class ComposantCve
     #[ORM\Column(type: 'string', length: 20, columnDefinition: "ENUM('active','resolue','ignoree') NOT NULL DEFAULT 'active'")]
     private string $statut = self::STATUT_ACTIVE;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeInterface $detecteLe;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeInterface $resoluLe = null;
 
     public function __construct()

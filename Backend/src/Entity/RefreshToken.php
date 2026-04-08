@@ -36,10 +36,10 @@ class RefreshToken
     #[ORM\Column(type: 'boolean')]
     private bool $revoque = false;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeInterface $expireA;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeInterface $dateCreation;
 
     public function __construct()

@@ -41,10 +41,10 @@ class Projet
     #[ORM\Column(type: 'decimal', precision: 5, scale: 2, nullable: true)]
     private ?float $scoreGlobal = null;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeInterface $dateCreation;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeInterface $dateModification;
 
     #[ORM\OneToMany(mappedBy: 'projet', targetEntity: Composant::class, cascade: ['remove'])]

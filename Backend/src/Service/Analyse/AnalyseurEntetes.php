@@ -38,7 +38,7 @@ class AnalyseurEntetes
     private const ENTETES_CRITIQUES = [
         'strict-transport-security' => 'Force la connexion HTTPS (HSTS)',
         'content-security-policy'   => 'Prévient les injections XSS (CSP)',
-        'x-frame-options'           => 'Bloque l'intégration en iframe (clickjacking)',
+        'x-frame-options'           => "Bloque l'intégration en iframe (clickjacking)",
         'x-content-type-options'    => 'Bloque la détection automatique de type MIME',
     ];
 

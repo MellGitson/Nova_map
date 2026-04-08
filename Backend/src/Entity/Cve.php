@@ -44,7 +44,7 @@ class Cve
     #[ORM\Column(type: 'date', nullable: true)]
     private ?\DateTimeInterface $datePublication = null;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeInterface $dateCreation;
 
     #[ORM\OneToMany(mappedBy: 'cve', targetEntity: ComposantCve::class, cascade: ['remove'])]
