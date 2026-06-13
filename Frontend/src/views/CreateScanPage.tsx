@@ -11,6 +11,7 @@ export function CreateScanPage() {
   const navigate = useNavigate();
   const [nom, setNom] = useState("");
   const [description, setDescription] = useState("");
+  const [github_url, setGithubUrl] = useState("");
   const [erreur, setErreur] = useState<string | null>(null);
   const [chargement, setChargement] = useState(false);
 
@@ -28,6 +29,7 @@ export function CreateScanPage() {
       const projet = await creerProjet({
         nom: nom.trim(),
         description: description.trim() || null,
+        github_url: github_url.trim() || null,
       });
       navigate(`/projets/${projet.id}`, { replace: true });
     } catch (err) {
@@ -81,6 +83,20 @@ export function CreateScanPage() {
               fontFamily: "inherit",
             }}
           />
+        </label>
+        <label>
+          <span>URL GitHub (optionnel)</span>
+          <input
+            type="url"
+            value={github_url}
+            onChange={(e) => setGithubUrl(e.target.value)}
+            placeholder="https://github.com/user/repo"
+            maxLength={255}
+            disabled={chargement}
+          />
+          <small style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
+            Permet d'analyser les vulnérabilités du repository
+          </small>
         </label>
         <div style={{ display: "flex", gap: "1rem" }}>
           <Button type="submit" disabled={chargement}>

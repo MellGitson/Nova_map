@@ -11,21 +11,19 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * Token Family Pattern (CDCF §4.1).
- * - Chaque famille a un UUID partagé.
- * - Un token refresh ne peut être utilisé qu'une seule fois (consomme=true).
- * - Si un token déjà consommé est réutilisé → toute la famille est révoquée (CRITICAL).
+ * Token Family Pattern :
+ * - Chaque famille partage un UUID.
+ * - Un token refresh ne peut être utilisé qu'une seule fois.
+ * - Si un token déjà consommé est réutilisé → toute la famille est révoquée.
  */
-class TokenFamilyService
+final class TokenFamilyService
 {
     public function __construct(
-        private readonly EntityManagerInterface  $em,
-        private readonly RefreshTokenRepository  $repo,
-        private readonly AuditService            $audit,
-        private readonly int                     $ttlSeconds = 604800, // 7 jours
+        private readonly EntityManagerInterface $em,
+        private readonly RefreshTokenRepository $repo,
+        private readonly int                    $ttlSeconds = 604800,
     ) {}
 
-    /** Crée un nouveau refresh token pour un utilisateur dans une nouvelle famille. */
     public function create(User $user, ?string $familleId = null): RefreshToken
     {
         $token = new RefreshToken();
@@ -41,9 +39,7 @@ class TokenFamilyService
     }
 
     /**
-     * Valide et consomme un refresh token.
-     *
-     * @throws \RuntimeException Si le token est invalide ou la famille compromise.
+     * @throws \RuntimeException si le token est invalide, révoqué, expiré ou réutilisé.
      */
     public function consume(string $rawToken, User $user): RefreshToken
     {
@@ -53,17 +49,8 @@ class TokenFamilyService
             throw new \RuntimeException('Token introuvable.');
         }
 
-        // Détection de réutilisation → révocation de toute la famille (CRITICAL)
         if ($token->isConsomme()) {
             $this->revokeFamily($token->getFamilleId());
-            $this->audit->log(
-                action: 'REFRESH_TOKEN_REUSE',
-                entite: 'refresh_token',
-                entiteId: $token->getId(),
-                niveau: \App\Entity\JournalAudit::NIVEAU_CRITICAL,
-                donnees: ['famille_id' => $token->getFamilleId()],
-                user: $user,
-            );
             throw new \RuntimeException('Réutilisation détectée — famille révoquée.');
         }
 
@@ -79,29 +66,23 @@ class TokenFamilyService
             throw new \RuntimeException('Token appartenant à un autre utilisateur.');
         }
 
-        // Marquer comme consommé
         $token->setConsomme(true);
         $this->em->flush();
 
-        // Créer un nouveau token dans la même famille
         return $this->create($user, $token->getFamilleId());
     }
 
-    /** Révoque tous les tokens d'une famille. */
     public function revokeFamily(string $familleId): void
     {
-        $tokens = $this->repo->findBy(['familleId' => $familleId]);
-        foreach ($tokens as $t) {
+        foreach ($this->repo->findBy(['familleId' => $familleId]) as $t) {
             $t->setRevoque(true);
         }
         $this->em->flush();
     }
 
-    /** Révoque tous les tokens actifs d'un utilisateur (déconnexion globale). */
     public function revokeAllForUser(User $user): void
     {
-        $tokens = $this->repo->findBy(['utilisateur' => $user, 'revoque' => false]);
-        foreach ($tokens as $t) {
+        foreach ($this->repo->findBy(['utilisateur' => $user, 'revoque' => false]) as $t) {
             $t->setRevoque(true);
         }
         $this->em->flush();

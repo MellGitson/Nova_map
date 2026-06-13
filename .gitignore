@@ -1,0 +1,32 @@
+# Aider
+.aider*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code
+.claude/settings.local.json
+
+# Docker
+.docker/
+
+# Backend (Symfony)
+Backend/.env.local
+Backend/.env.*.local
+Backend/var/
+Backend/vendor/
+Backend/config/jwt/private.pem
+Backend/config/jwt/public.pem
+
+# Frontend (Node)
+Frontend/node_modules/
+Frontend/dist/
+Frontend/.env.local
+Frontend/.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

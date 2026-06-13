@@ -15,10 +15,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'utilisateur')]
 #[ORM\UniqueConstraint(name: 'UNIQ_EMAIL', columns: ['email'])]
-#[ORM\UniqueConstraint(name: 'UNIQ_OAUTH_GOOGLE', columns: ['oauth_google_id'])]
 #[ORM\HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    public const ROLE_USER  = 'ROLE_USER';
+    public const ROLE_OWNER = 'ROLE_OWNER';
+    public const ROLE_RENTER = 'ROLE_RENTER';
+    public const ROLE_ADMIN = 'ROLE_ADMIN';
+
     #[ORM\Id]
     #[ORM\Column(type: 'string', length: 36)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
@@ -41,10 +45,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /** @var list<string> */
     #[ORM\Column(type: 'json')]
-    private array $roles = ['ROLE_USER'];
+    private array $roles = [self::ROLE_USER];
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true, unique: true)]
-    private ?string $oauthGoogleId = null;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $telephone = null;
+
+    /**
+     * Numéro de permis bateau — chiffré au repos (Doctrine Encryption post-MVP).
+     * Stocké en VARCHAR pour permettre le chiffrement symétrique.
+     */
+    #[ORM\Column(type: 'string', length: 512, nullable: true)]
+    private ?string $numeroPermis = null;
 
     #[ORM\Column(type: 'boolean')]
     private bool $emailVerifie = false;
@@ -61,27 +72,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeInterface $consentementRgpd = null;
 
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeInterface $dateSuppression = null;
+
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeInterface $dateCreation;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeInterface $dateModification;
 
+    #[ORM\OneToMany(mappedBy: 'proprietaire', targetEntity: Bateau::class)]
+    private Collection $bateaux;
+
+    #[ORM\OneToMany(mappedBy: 'locataire', targetEntity: Reservation::class, cascade: ['remove'])]
+    private Collection $reservations;
+
     #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: RefreshToken::class, cascade: ['remove'])]
     private Collection $refreshTokens;
 
-    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Membre::class, cascade: ['remove'])]
-    private Collection $memberships;
-
-    #[ORM\OneToMany(mappedBy: 'createur', targetEntity: Projet::class)]
-    private Collection $projets;
-
     public function __construct()
     {
-        $this->refreshTokens = new ArrayCollection();
-        $this->memberships   = new ArrayCollection();
-        $this->projets       = new ArrayCollection();
-        $this->dateCreation  = new \DateTimeImmutable();
+        $this->refreshTokens    = new ArrayCollection();
+        $this->bateaux          = new ArrayCollection();
+        $this->reservations     = new ArrayCollection();
+        $this->dateCreation     = new \DateTimeImmutable();
         $this->dateModification = new \DateTimeImmutable();
     }
 
@@ -104,7 +118,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        $roles[] = 'ROLE_USER';
+        $roles[] = self::ROLE_USER;
         return array_unique($roles);
     }
     public function setRoles(array $roles): static { $this->roles = $roles; return $this; }
@@ -114,8 +128,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getNom(): string { return $this->nom; }
     public function setNom(string $nom): static { $this->nom = $nom; return $this; }
 
-    public function getOauthGoogleId(): ?string { return $this->oauthGoogleId; }
-    public function setOauthGoogleId(?string $id): static { $this->oauthGoogleId = $id; return $this; }
+    public function getTelephone(): ?string { return $this->telephone; }
+    public function setTelephone(?string $t): static { $this->telephone = $t; return $this; }
+
+    public function getNumeroPermis(): ?string { return $this->numeroPermis; }
+    public function setNumeroPermis(?string $n): static { $this->numeroPermis = $n; return $this; }
 
     public function isEmailVerifie(): bool { return $this->emailVerifie; }
     public function setEmailVerifie(bool $v): static { $this->emailVerifie = $v; return $this; }
@@ -138,10 +155,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getConsentementRgpd(): ?\DateTimeInterface { return $this->consentementRgpd; }
     public function setConsentementRgpd(?\DateTimeInterface $d): static { $this->consentementRgpd = $d; return $this; }
 
+    public function getDateSuppression(): ?\DateTimeInterface { return $this->dateSuppression; }
+    public function setDateSuppression(?\DateTimeInterface $d): static { $this->dateSuppression = $d; return $this; }
+    public function isSuprime(): bool { return $this->dateSuppression !== null; }
+
     public function getDateCreation(): \DateTimeInterface { return $this->dateCreation; }
     public function getDateModification(): \DateTimeInterface { return $this->dateModification; }
 
     public function getRefreshTokens(): Collection { return $this->refreshTokens; }
-    public function getMemberships(): Collection { return $this->memberships; }
-    public function getProjets(): Collection { return $this->projets; }
+    public function getBateaux(): Collection { return $this->bateaux; }
+    public function getReservations(): Collection { return $this->reservations; }
 }

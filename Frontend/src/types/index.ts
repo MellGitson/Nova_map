@@ -23,6 +23,7 @@ export type Projet = {
   id: string;
   nom: string;
   description: string | null;
+  github_url: string | null;
   score_global: number | null;
   nb_composants: number;
   date_creation: string;

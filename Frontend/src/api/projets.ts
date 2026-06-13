@@ -24,6 +24,7 @@ export async function obtenirProjet(projetId: string): Promise<Projet> {
 export type DonneesCreationProjet = {
   nom: string;
   description?: string | null;
+  github_url?: string | null;
 };
 
 export async function creerProjet(donnees: DonneesCreationProjet): Promise<Projet> {

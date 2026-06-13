@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "graphify": {
+      "command": "/Users/djidji/.local/bin/graphify-mcp",
+      "args": []
+    }
+  }
+}
